@@ -1,0 +1,19 @@
+{
+  "name": "@fun5-cli-dev/core",
+  "version": "1.0.0",
+  "description": "fun5-cli-dev core",
+  "author": "lyw <you@example.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/core.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  }
+}
