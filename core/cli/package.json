@@ -17,7 +17,20 @@
     "lib"
   ],
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"Run testing from core\""
+  },
+  "dependencies": {
+    "@fun5-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
+    "@fun5-cli-dev/log": "file:../../utils/log",
+    "colors": "^1.4.0",
+    "dotenv": "^14.1.0",
+    "import-local": "^3.1.0",
+    "minimist": "^1.2.5",
+    "npmlog": "^6.0.0",
+    "path-exists": "4.0.0",
+    "root-check": "1.0.0",
+    "semver": "^7.3.5",
+    "user-home": "^3.0.0"
   },
   "gitHead": "3cd86c9bfc2e9969c3e62356e020dc6f0587e232",
   "publishConfig": {
