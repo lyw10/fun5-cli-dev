@@ -8,7 +8,6 @@ function getNpmInfo(npmName, registry) {
   if (!npmName) return null;
   const registryUrl = registry || getDefaultRegistry();
   const npmInfoUrl = urlJoin(registryUrl, npmName);
-  console.log(npmInfoUrl);
   return axios
     .get(npmInfoUrl)
     .then((res) => {
@@ -28,6 +27,7 @@ function getDefaultRegistry(isOriginal = false) {
     : "https://registry.npm.taobao.org/";
 }
 
+// 获取npm包所有的version
 async function getNpmVersions(npmName, registry) {
   const data = await getNpmInfo(npmName, registry);
   if (data) {
@@ -51,8 +51,19 @@ async function getNpmSemverVersion(baseVsesion, npmName, registry) {
   }
 }
 
+// latest -> 具体的版本号
+async function getNpmLatestVersion(npmName, registry) {
+  let versions = await getNpmVersions(npmName, registry);
+  if (versions) {
+    return versions.sort((a, b) => semver.gt(b, a))[0];
+  }
+  return null;
+}
+
 module.exports = {
   getNpmInfo,
   getNpmVersions,
   getNpmSemverVersion,
+  getDefaultRegistry,
+  getNpmLatestVersion,
 };

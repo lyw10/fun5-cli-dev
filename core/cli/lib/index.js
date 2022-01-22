@@ -5,54 +5,49 @@ module.exports = core;
 const path = require("path");
 const semver = require("semver");
 const colors = require("colors/safe");
-const log = require("@fun5-cli-dev/log");
 const userHome = require("user-home");
 const pathExists = require("path-exists").sync;
-
-// import rootCheck from "root-check";
+const commander = require("commander");
+const log = require("@fun5-cli-dev/log");
+// const init = require("@fun5-cli-dev/init");
+const exec = require("@fun5-cli-dev/exec");
 
 const pkg = require("../package.json");
 const constant = require("./const");
 
-let args;
+const program = new commander.Command();
 
 async function core() {
   try {
-    // 检查版本号
-    checkPkgVersion();
-    // 检查 node 版本
-    checkNodeVersion();
-    // 检查 root 启动
-    checkRoot();
-    // 检查用户主目录
-    checkUserHome();
-    // 检查入参
-    checkInputArgs();
-    // 检查环境变量
-    checkEnv();
-    // 检查是否为最新版本
-    checkGlobalUpdate();
+    // 准备阶段
+    await prepare();
+    // 命令注册
+    registerCommand();
   } catch (e) {
     console.error(e.message);
   }
 }
 
+/**
+ * 准备阶段
+ */
+async function prepare() {
+  // 检查版本号
+  checkPkgVersion();
+  // 检查 root 启动
+  checkRoot();
+  // 检查用户主目录
+  checkUserHome();
+  // 检查入参
+  // checkInputArgs();
+  // 检查环境变量
+  checkEnv();
+  // 检查是否为最新版本
+  await checkGlobalUpdate();
+}
 // 检查版本号函数
 function checkPkgVersion() {
   log.info("cli", pkg.version);
-}
-
-// 检查 node 版本
-function checkNodeVersion() {
-  // 1.获取当前node版本号
-  const currentVersion = process.version;
-  // 2.比对最低版本号
-  const lowestNodeVersion = constant.LOWEST_NODE_VERSION;
-  if (!semver.gte(currentVersion, lowestNodeVersion)) {
-    throw new Error(
-      colors.red(`fun5-cli 需要安装 v${lowestNodeVersion} 以上版本的 Node.js`)
-    );
-  }
 }
 
 //检查 root 启动
@@ -69,6 +64,7 @@ function checkUserHome() {
 }
 
 // 检查入参
+/** 
 function checkInputArgs() {
   const minimist = require("minimist");
   args = minimist(process.argv.slice(2));
@@ -82,6 +78,7 @@ function checkArgs() {
   }
   log.level = process.env.LOG_LEVEL;
 }
+*/
 
 // 检查环境变量
 function checkEnv() {
@@ -94,7 +91,6 @@ function checkEnv() {
   }
 
   createDefaultConfig();
-  log.verbose("环境变量", process.env.CLI_HOME_PATH);
 }
 
 function createDefaultConfig() {
@@ -126,5 +122,53 @@ async function checkGlobalUpdate() {
                 更新命令：npm install -g ${npmName}`
       )
     );
+  }
+}
+
+/**
+ * 命令注册
+ */
+function registerCommand() {
+  program
+    .name(Object.keys(pkg.bin)[0])
+    .usage("<command> [options]")
+    .version(pkg.version)
+    .option("-d, --debug", "是否开启调试模式", false)
+    .option("-tp, --targetPath <targetPath>", "是否指定本地调试文件路径", "");
+
+  // 命令注册
+  program
+    .command("init [projectName]")
+    .option("-f --force", "是否强制初始化项目", false)
+    .action(exec);
+
+  // 开启debug模式
+  program.on("option:debug", function () {
+    if (program.opts().debug) {
+      process.env.LOG_LEVEL = "verbose";
+    } else {
+      process.env.LOG_LEVEL = "info";
+    }
+    log.level = process.env.LOG_LEVEL;
+  });
+
+  // 指定targetPath
+  program.on("option:targetPath", function () {
+    process.env.CLI_TARGET_PATH = program.opts().targetPath;
+  });
+
+  // 对未知命令监听
+  program.on("command:*", function (obj) {
+    const availableCommands = program.commands.map((cmd) => cmd.name());
+    console.log(colors.red("未知的命令：" + obj[0]));
+    if (availableCommands.length > 0) {
+      console.log(colors.red("可用命令：" + availableCommands.join(",")));
+    }
+  });
+
+  program.parse(process.argv);
+  if (program.args && program.args.length < 1) {
+    program.outputHelp();
+    console.log();
   }
 }

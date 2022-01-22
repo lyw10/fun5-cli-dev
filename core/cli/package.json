@@ -22,10 +22,12 @@
   "dependencies": {
     "@fun5-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
     "@fun5-cli-dev/log": "file:../../utils/log",
+    "@fun5-cli-dev/init": "file:../../commands/init",
+    "@fun5-cli-dev/exec": "file:../exec",
     "colors": "^1.4.0",
+    "commander": "^8.3.0",
     "dotenv": "^14.1.0",
     "import-local": "^3.1.0",
-    "minimist": "^1.2.5",
     "npmlog": "^6.0.0",
     "path-exists": "4.0.0",
     "root-check": "1.0.0",
